@@ -106,6 +106,11 @@ html img.pfp-viewer-layer.anon-pfp-url.anon-mod-anon {
   container: anon-gallery / size;
 }
 
+/* The page under an open gallery stays put: scrolled, it would carry the gallery off. */
+#menu-page-screen-body:has(.anon-gallery) {
+  overflow: hidden;
+}
+
 .anon-gallery-layout {
   box-sizing: border-box;
   height: 100%;
@@ -155,6 +160,7 @@ html img.pfp-viewer-layer.anon-pfp-url.anon-mod-anon {
   flex: 1 1 auto;
   min-height: 0;
   overflow-y: auto;
+  overscroll-behavior: contain;
   /* gallery.js keeps the view in place as rows are added above it. */
   overflow-anchor: none;
 }
