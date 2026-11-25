@@ -70,11 +70,13 @@ itself, at `https://anons.structs.zone/anon/pfp/<collection>/<id>.webp`:
 The gallery has a tab per collection (webapp's own nav tabs), each one endless
 scroll of its pictures, edge to edge; images load as they come into view, and
 the grid holds only the rows around what's in view, so even a collection of
-1,740 scrolls and jumps at once. Numbers without a picture are skipped. A player who knows their picture's number finds it:
-the gallery scrolls to it and outlines it. Clicking a picture chooses it. No
-wallet is involved: the picture is the player's choice. Its controls are
-webapp's own SUI components: nav tabs, screen buttons, the text input and its
-warning, and the close link (`anon/runtime/gallery.js`).
+1,740 scrolls and jumps at once. Numbers without a picture are skipped. A
+player who knows their picture's number finds it: the gallery scrolls to it and
+outlines it. **Find** is on only for a number the collection has. Clicking a
+picture chooses it. No wallet is involved: the picture is the player's choice.
+Its controls are webapp's own SUI components: nav tabs, screen buttons, the
+text input and the close link (`anon/runtime/gallery.js`). On a short screen
+its tabs, number field and close link share one row.
 
 It opens from two places:
 

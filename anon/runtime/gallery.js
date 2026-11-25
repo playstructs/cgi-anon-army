@@ -19,9 +19,8 @@
 //   key sets the new picture on chain at once (MsgPlayerUpdatePfp).
 //
 // Its controls are webapp's own SUI components: the screen nav's tabs, screen
-// buttons, the text input with its warning and the close link.
+// buttons, the text input and the close link.
 import {collections, collection, exists, pictureUrl, anonPicture, showOwn} from './pfp.js';
-import {bindSubmitButtonToInput} from '../../structs-webapp/src/js/util/SubmitButtonToggle.js';
 import {PfpViewerComponent} from '../../structs-webapp/src/js/view_models/components/PfpViewerComponent.js';
 
 const BATCH = 120;
@@ -47,29 +46,28 @@ function open(host, {viewport = null, current, say, choose}) {
   const panel = document.createElement('div');
   panel.className = 'anon-gallery';
   panel.innerHTML = `
-    <div class="anon-gallery-header">
-      <span class="sui-text-header">Anon Army</span>
-      <a class="sui-screen-nav-close anon-gallery-close" href="javascript: void(0)" aria-label="Close">
-        <i class="sui-icon-sm icon-close"></i>
-      </a>
-    </div>
-    <nav class="sui-screen-nav-items anon-gallery-tabs" role="tablist">
-      ${collections.map(c => `<a class="sui-screen-nav-item" href="javascript: void(0)" role="tab" data-collection="${c.slug}" title="${c.name}">${c.label}</a>`).join('')}
-    </nav>
-    <div class="common-inline-text-input-group-container">
-      <div class="common-inline-text-input-controls-container">
-        <label class="sui-input-text" for="anon-gallery-id">
-          <span>Find by Number</span>
-          <input type="text" inputmode="numeric" autocomplete="off" name="anon-gallery-id" id="anon-gallery-id">
-        </label>
-        <button class="sui-screen-btn sui-mod-disabled anon-gallery-find" type="button" disabled>Find</button>
+    <div class="anon-gallery-layout">
+      <div class="anon-gallery-header">
+        <span class="sui-text-header">Anon Army</span>
+        <a class="sui-screen-nav-close anon-gallery-close" href="javascript: void(0)" aria-label="Close">
+          <i class="sui-icon-sm icon-close"></i>
+        </a>
       </div>
-      <div class="common-inline-text-input-error-container">
-        <div class="sui-input-text-warning anon-gallery-error"></div>
+      <nav class="sui-screen-nav-items anon-gallery-tabs" role="tablist">
+        ${collections.map(c => `<a class="sui-screen-nav-item" href="javascript: void(0)" role="tab" data-collection="${c.slug}" title="${c.name}">${c.label}</a>`).join('')}
+      </nav>
+      <div class="common-inline-text-input-group-container">
+        <div class="common-inline-text-input-controls-container">
+          <label class="sui-input-text" for="anon-gallery-id">
+            <span>Find by Number</span>
+            <input type="text" inputmode="numeric" autocomplete="off" name="anon-gallery-id" id="anon-gallery-id">
+          </label>
+          <button class="sui-screen-btn sui-mod-disabled anon-gallery-find" type="button" disabled>Find</button>
+        </div>
       </div>
-    </div>
-    <div class="anon-gallery-scroll">
-      <div class="anon-gallery-grid"></div>
+      <div class="anon-gallery-scroll">
+        <div class="anon-gallery-grid"></div>
+      </div>
     </div>`;
   host.append(panel);
 
@@ -77,7 +75,6 @@ function open(host, {viewport = null, current, say, choose}) {
   const grid = panel.querySelector('.anon-gallery-grid');
   const idInput = panel.querySelector('#anon-gallery-id');
   const idButton = panel.querySelector('.anon-gallery-find');
-  const idError = panel.querySelector('.anon-gallery-error');
   const chosen = anonPicture(current);
 
   // The grid holds the pictures from `start` up to `next`, a window of the
@@ -180,24 +177,22 @@ function open(host, {viewport = null, current, say, choose}) {
     idInput.value = '';
     idInput.placeholder = `${c.first} to ${c.last}`;
     idInput.dispatchEvent(new Event('input'));
-    idError.classList.remove('sui-mod-show');
     if (chosen?.collection === c) {
       reveal(chosen.id, {mark: false, smooth: false});
     }
     fill();
   };
 
-  const find = () => {
+  /** The number in the field, if this collection has that picture. */
+  const wanted = () => {
     const value = idInput.value.trim().replace(/^#/, '');
     const id = ID_PATTERN.test(value) ? Number(value) : null;
-    if (!exists(shown, id)) {
-      idError.textContent = id !== null && id >= shown.first && id <= shown.last
-        ? `${title(shown, id)} has no picture.`
-        : `Enter a number from ${shown.first} to ${shown.last}.`;
-      idError.classList.add('sui-mod-show');
-      return;
-    }
-    idError.classList.remove('sui-mod-show');
+    return exists(shown, id) ? id : null;
+  };
+
+  const find = () => {
+    const id = wanted();
+    if (id === null) return;
     reveal(id);
     fill();
     say(`There's ${title(shown, id)}. Click it to make it yours.`);
@@ -234,8 +229,13 @@ function open(host, {viewport = null, current, say, choose}) {
     close();
     choose(pictureUrl(shown.slug, id), shown, id);
   });
-  bindSubmitButtonToInput(idInput, () => idButton);
-  idInput.addEventListener('input', () => idError.classList.remove('sui-mod-show'));
+  // Find is on only while the number is one it can find.
+  idInput.addEventListener('input', () => {
+    const found = wanted() !== null;
+    idButton.disabled = !found;
+    idButton.classList.toggle('sui-mod-primary', found);
+    idButton.classList.toggle('sui-mod-disabled', !found);
+  });
   idInput.addEventListener('keyup', event => {
     if (event.key === 'Enter') find();
   });
@@ -243,7 +243,7 @@ function open(host, {viewport = null, current, say, choose}) {
   panel.querySelector('.anon-gallery-close').addEventListener('click', close);
 
   show(chosen?.collection ?? collections[0]);
-  say(`Pick your Anon: ${collections.map(c => c.label).join(', ')}. Know its number? Find it.`);
+  say('Pick your Anon, or find it by number.');
   return close;
 }
 
