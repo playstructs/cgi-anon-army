@@ -1,0 +1,40 @@
+{
+  "guild": {
+    "schema_version": 1,
+    "id": "0-19",
+    "name": "Anon Army",
+    "description": "The Anon Army Structs Guild",
+    "tag": "ANON",
+    "logo": "https://anons.structs.zone/anon/img/anon-army-logo.jpg",
+    "webapp": "anons.structs.zone",
+    "website": "https://anons.structs.zone",
+    "recruiting": {
+      "status": "open"
+    },
+    "socials": {
+      "bluesky": "",
+      "facebook": "",
+      "farcaster": "",
+      "instagram": "",
+      "twitch": "",
+      "x": "https://x.com/AnonsNFT",
+      "youtube": "",
+      "discord_contact": "",
+      "discord_server": "",
+      "telegram_contact": "",
+      "telegram_channel": ""
+    },
+    "denom": {
+      "6": "bananon",
+      "0": "ubananon"
+    },
+    "services": {
+      "guild_api": "https://beta.playstructs.com/api/",
+      "reactor_api": "https://public.testnet.structs.network/",
+      "client_websocket": "wss://public.testnet.structs.network:26657/websocket",
+      "grass_nats_websocket": "wss://beta.playstructs.com:1443",
+      "matrix": "https://matrix.beta.playstructs.com",
+      "explorer": ""
+    }
+  }
+}
